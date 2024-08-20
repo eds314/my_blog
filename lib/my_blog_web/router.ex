@@ -20,7 +20,6 @@ defmodule MyBlogWeb.Router do
   scope "/", MyBlogWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
@@ -50,6 +49,8 @@ defmodule MyBlogWeb.Router do
   scope "/", MyBlogWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
+    get "/", PageController, :home
+
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{MyBlogWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/users/register", UserRegistrationLive, :new
@@ -66,6 +67,7 @@ defmodule MyBlogWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{MyBlogWeb.UserAuth, :ensure_authenticated}] do
+      live "/home", HomeLive, :index
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end

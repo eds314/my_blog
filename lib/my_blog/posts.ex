@@ -8,7 +8,7 @@ defmodule MyBlog.Posts do
     query =
       from p in Post,
         select: p,
-        order_by: [desc: p.inserted_at],
+        order_by: [desc: :inserted_at],
         preload: [:user]
 
     Repo.all(query)
@@ -17,6 +17,6 @@ defmodule MyBlog.Posts do
   def save(post_params) do
     %Post{}
     |> Post.changeset(post_params)
-    |> Repo.insert()
+    |> Repo.insert_or_update()
   end
 end

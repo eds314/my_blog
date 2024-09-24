@@ -7,7 +7,7 @@ defmodule MyBlog.Blog.Post do
 
   schema "blog_posts" do
     field :title, :string
-    field :views, :integer
+    field :views, :integer, default: 0
     field :image_path, :string
     #changed association so we get full user struct back from db
     belongs_to :user, User

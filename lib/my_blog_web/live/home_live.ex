@@ -83,6 +83,7 @@ defmodule MyBlogWeb.HomeLive do
     |> Map.put("image_path", List.first(consume_files(socket)))
     |> Posts.save()
     |> case do
+
       {:ok, _post} ->
         socket =
           socket
@@ -91,7 +92,8 @@ defmodule MyBlogWeb.HomeLive do
 
         {:noreply, socket}
 
-      {:error, _changeset} ->
+      {:error, changeset} ->
+        IO.inspect(changeset)
         {:noreply, socket}
     end
 

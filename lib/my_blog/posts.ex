@@ -4,6 +4,7 @@ defmodule MyBlog.Posts do
   alias MyBlog.Repo
   alias MyBlog.Blog.Post
 
+  #refactor?
   def list_posts do
     query =
       from p in Post,

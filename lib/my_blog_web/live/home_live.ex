@@ -28,22 +28,12 @@ defmodule MyBlogWeb.HomeLive do
       </div>
     </div>
 
-    <%!-- <table>
-      <tbody id="feed" phx-update="stream">
-        <tr :for={{dom_id, post} <- @streams.posts} id={dom_id}>
-          <img src={post.image_path} />
-          <td><%= post.user.email %></td>
-          <td><%= post.title %></td>
-        </tr>
-      </tbody>
-    </table> --%>
-
     <.modal id="new-post-modal">
       <.simple_form for={@form} phx-change="validate" phx-submit="save-post">
         <.input field={@form[:title]} type="text" placeholder="Write Something!" required />
         <.live_file_input upload={@uploads.image} required />
 
-        <.button type="submit">Post</.button>
+        <.button type="submit" phx-disable-with="Saving..">Post</.button>
       </.simple_form>
     </.modal>
     """
@@ -79,25 +69,18 @@ defmodule MyBlogWeb.HomeLive do
 
     post_params
     |> Map.put("user_id", user.id)
-    # this is wrong but I don't know how to get the path
     |> Map.put("image_path", List.first(consume_files(socket)))
     |> Posts.save()
     |> case do
-
       {:ok, _post} ->
-        socket =
-          socket
-          |> put_flash(:info, "Post created successfully")
-          |> push_navigate(to: ~p"/home")
-
-        {:noreply, socket}
-
-      {:error, changeset} ->
-        IO.inspect(changeset)
-        {:noreply, socket}
+        {:noreply,
+         socket
+         |> put_flash(:info, "Post created successfully")
+         |> push_navigate(to: ~p"/home")}
+      ##This is where the reload error was
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: changeset)}
     end
-
-    {:noreply, socket}
   end
 
   defp consume_files(socket) do

@@ -25,6 +25,9 @@ defmodule MyBlogWeb.HomeLive do
         <img src={post.image_path} />
         <p><%= post.user.email %></p>
         <p><%= post.title %></p>
+        <.button
+        phx-click={JS.push("delete", value: %{id: dom_id})}
+        data-confirm="Are you sure you want to delete your previous post?">delete</.button>
       </div>
     </div>
 
@@ -37,6 +40,10 @@ defmodule MyBlogWeb.HomeLive do
       </.simple_form>
     </.modal>
     """
+  end
+
+  defp username(user) do
+    user.email |> String.split("@") |> List.first() |> String.capitalize()
   end
 
   @impl Phoenix.LiveView
@@ -77,10 +84,15 @@ defmodule MyBlogWeb.HomeLive do
          socket
          |> put_flash(:info, "Post created successfully")
          |> push_navigate(to: ~p"/home")}
-      ##This is where the reload error was
+
+      ## This is where the reload error was
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: changeset)}
     end
+  end
+
+  def handle_event("delete", %{"id" => dom_id}, socket) do
+    {:noreply, stream_delete_by_dom_id(socket, :posts, dom_id)}
   end
 
   defp consume_files(socket) do

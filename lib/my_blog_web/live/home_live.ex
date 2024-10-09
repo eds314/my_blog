@@ -20,12 +20,13 @@ defmodule MyBlogWeb.HomeLive do
       <div
         :for={{dom_id, post} <- @streams.posts}
         id={dom_id}
-        class="w-1/2 mx-auto flex flex-col gap-2 p-4 border rounded"
+        class="group w-1/2 mx-auto flex flex-col gap-2 p-4 border rounded"
       >
         <img src={post.image_path} />
         <p><%= post.user.email %></p>
         <p><%= post.title %></p>
         <.button
+        class="hidden group-hover:block"
         phx-click={JS.push("delete", value: %{id: dom_id})}
         data-confirm="Are you sure you want to delete your previous post?">delete</.button>
       </div>

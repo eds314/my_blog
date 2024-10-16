@@ -50,6 +50,8 @@ defmodule MyBlogWeb.HomeLive do
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     if connected?(socket) do
+      Phoenix.PubSub.subscribe(MyBlog.PubSub, "posts")
+
       form =
         %Post{}
         |> Post.changeset(%{})
@@ -80,16 +82,27 @@ defmodule MyBlogWeb.HomeLive do
     |> Map.put("image_path", List.first(consume_files(socket)))
     |> Posts.save()
     |> case do
-      {:ok, _post} ->
+      {:ok, post} ->
         {:noreply,
          socket
          |> put_flash(:info, "Post created successfully")
          |> push_navigate(to: ~p"/home")}
 
+         Phoenix.PubSub.broadcast(MyBlog.PubSub, "posts",{:new, Map.put(post, :user, user)})
+
+
       ## This is where the reload error was
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: changeset)}
     end
+  end
+
+  @impl true
+  def handle_info({:new, post}, socket) do
+    socket =
+      socket
+      |> put_flash(:info, "#{post.user.email} has just posted!")
+      {:noreply, stream_insert(socket, :posts, post, at: 0)}
   end
 
   def handle_event("delete", %{"id" => dom_id}, socket) do
